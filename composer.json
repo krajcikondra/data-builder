@@ -1,0 +1,22 @@
+{
+    "name": "krajcik/data-builder",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Krajcik\\DataBuilder\\": "src/"
+        }
+    },
+    "require": {
+        "nette/database": ">=2.4",
+        "nette/php-generator": ">=3.6",
+        "fakerphp/faker": "^1.23",
+        "nette/robot-loader": ">=2.4",
+        "doctrine/orm": ">=2.19"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.11"
+    },
+    "scripts": {
+        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon"
+    }
+}
