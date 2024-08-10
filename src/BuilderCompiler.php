@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Krajcik\DataBuilder;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Faker\Generator;
 use Krajcik\DataBuilder\CodeCompiler\BuilderCodeCompiler;
+use Krajcik\DataBuilder\CodeCompiler\Extension\FactoryCodeExtension;
 use Krajcik\DataBuilder\CodeCompiler\FactoryCodeCompiler;
 use Krajcik\DataBuilder\CodeCompiler\ParametersCodeCompiler;
 use Krajcik\DataBuilder\Dto\Configuration;
@@ -18,6 +18,7 @@ use Nette\Database\Connection;
 use Nette\Database\Context;
 use Nette\Database\Structure;
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpNamespace;
 use Nette\Utils\FileSystem as Files;
 
@@ -30,7 +31,7 @@ final class BuilderCompiler
     private ParametersCodeCompiler $parametersCompiler;
     private Context $db;
 
-    private PathResolver $pathResolver;
+    protected PathResolver $pathResolver;
     private Configuration $configuration;
 
     public function __construct(
@@ -45,6 +46,11 @@ final class BuilderCompiler
         $this->builderCompiler = new BuilderCodeCompiler($this->db, $this->pathResolver, $this->configuration);
         $this->parametersCompiler = new ParametersCodeCompiler($this->db, $this->pathResolver);
         $this->factoryCompiler = new FactoryCodeCompiler($this->db, $this->pathResolver, $this->configuration);
+    }
+
+    public function setExtension(FactoryCodeExtension $extension): void
+    {
+        $this->factoryCompiler->setExtension($extension);
     }
 
     /**
@@ -72,44 +78,49 @@ final class BuilderCompiler
             $class = $this->factoryCompiler->compile($data);
             GeneratorHelper::writeClassFile($class, $this->pathResolver->createFactoryClassPath($entityClass));
 
-            $method = $builderFactoryClass->addMethod(sprintf('create%sBuilder', $entityClass));
-            $method->setReturnType($this->pathResolver->getBuilderNamespace($entityClass));
-            $method
-                ->addParameter('parameters')
-                ->setNullable()
-                ->setDefaultValue(null)
-                ->setType($this->pathResolver->getParameterClassName($entityClass));
-
-            $method->addBody('if ($parameters === null) {');
-            $method->addBody(sprintf(
-                '    $parameters = (new %s($this->getFaker()))->createDefaultParameters();',
-                $this->pathResolver->getFactoryNamespace($entityClass),
-            ));
-            $method->addBody('}');
-            $method->addBody(sprintf(
-                'return new %s($parameters, $this->em);',
-                $this->pathResolver->getBuilderNamespace($entityClass),
-            ));
+            $this->generateCreateBuilderMethod($builderFactoryClass, $entityClass);
         }
 
-        $builderFactoryConstructor
-            ->addParameter('em')
-            ->setType(EntityManagerInterface::class);
+        $this->generateBuilderFactoryConstructor($builderFactoryConstructor, $builderFactoryClass);
 
+
+        $this->generateBuilderFactoryFakerGetter($builderFactoryClass);
+        GeneratorHelper::writeClassFile($builderFactoryClass, $this->pathResolver->createBuilderFactoryClassPath());
+    }
+
+    protected function generateBuilderFactoryConstructor(Method $builderFactoryConstructor, ClassType $builderFactoryClass): void
+    {
         $builderFactoryClass
             ->addProperty('db')
             ->setPrivate()
             ->setType(Context::class);
 
-        $builderFactoryClass
-            ->addProperty('em')
-            ->setPrivate()
-            ->setType(EntityManagerInterface::class);
-
-        $builderFactoryConstructor->addBody('$this->em = $em;');
+        $builderFactoryConstructor->addParameter('db')->setType(Context::class);
+        $builderFactoryConstructor->addBody('$this->db = $db;');
         $builderFactoryConstructor->addBody('$this->faker = null;');
-        $this->generateBuilderFactoryFakerGetter($builderFactoryClass);
-        GeneratorHelper::writeClassFile($builderFactoryClass, $this->pathResolver->createBuilderFactoryClassPath());
+    }
+
+    protected function generateCreateBuilderMethod(ClassType $builderFactoryClass, string $entityClass): Method
+    {
+        $method = $builderFactoryClass->addMethod(sprintf('create%sBuilder', $entityClass));
+        $method->setReturnType($this->pathResolver->getBuilderNamespace($entityClass));
+        $method
+            ->addParameter('parameters')
+            ->setNullable()
+            ->setDefaultValue(null)
+            ->setType($this->pathResolver->getParameterClassName($entityClass));
+
+        $method->addBody('if ($parameters === null) {');
+        $method->addBody(sprintf(
+            '    $parameters = (new %s($this->getFaker()))->createDefaultParameters();',
+            $this->pathResolver->getFactoryNamespace($entityClass),
+        ));
+        $method->addBody('}');
+        $method->addBody(sprintf(
+            'return new %s($parameters, $this->db);',
+            $this->pathResolver->getBuilderNamespace($entityClass),
+        ));
+        return $method;
     }
 
     private function generateBuilderFactoryFakerGetter(

@@ -6,6 +6,7 @@ namespace Krajcik\DataBuilder\CodeCompiler;
 
 use Exception;
 use Faker\Generator;
+use Krajcik\DataBuilder\CodeCompiler\Extension\FactoryCodeExtension;
 use Krajcik\DataBuilder\Dto\BuilderToGenerateDto;
 use Krajcik\DataBuilder\Dto\Configuration;
 use Krajcik\DataBuilder\PathResolver;
@@ -21,12 +22,19 @@ final class FactoryCodeCompiler
 {
     private PropertyNameResolver $propertyNameResolver;
 
+    private ?FactoryCodeExtension $extension = null;
+
     public function __construct(
         private ?Context $db,
         private PathResolver $pathResolver,
         private Configuration $configuration,
     ) {
         $this->propertyNameResolver = new PropertyNameResolver();
+    }
+
+    public function setExtension(FactoryCodeExtension $extension): void
+    {
+        $this->extension = $extension;
     }
 
     public function precompile(
@@ -98,10 +106,18 @@ final class FactoryCodeCompiler
     private function getDefaultValue(
         EntityColumn $column,
     ): string {
+        if ($this->extension) {
+            $defaultValue = $this->extension->getDefaultValue($column);
+            if ($defaultValue !== null) {
+                return $defaultValue;
+            }
+        }
+
         return match (true) {
             $column->getName() === 'id' => 'null',
             $column->getName() === 'date_add' => 'new \DateTime()',
             $column->getName() === 'id_creator' => '1',
+            $column->isEnum() === true && $column->getDefault() => sprintf('\'%s\'', $column->getDefault()),
             $column->isEnum() === true => sprintf('\'%s\'', $column->getEnumList()[0]),
             $column->hasDefault() === true && $column->isDateOrTime() === true => $this->getDefaultDateValue($column),
             $column->hasDefault() === true && $column->isBool() === true => $column->getDefault() ? 'true' : 'false',
