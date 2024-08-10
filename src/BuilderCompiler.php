@@ -27,10 +27,10 @@ class BuilderCompiler
 {
     public const BUILDER_DIR = 'Builder';
 
-    private BuilderCodeCompiler $builderCompiler;
+    protected BuilderCodeCompiler $builderCompiler;
     private FactoryCodeCompiler $factoryCompiler;
     private ParametersCodeCompiler $parametersCompiler;
-    private Context $db;
+    protected Context $db;
 
     protected PathResolver $pathResolver;
     private Configuration $configuration;
