@@ -22,7 +22,7 @@ use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpNamespace;
 use Nette\Utils\FileSystem as Files;
 
-final class BuilderCompiler
+class BuilderCompiler
 {
     public const BUILDER_DIR = 'Builder';
 
