@@ -20,6 +20,7 @@ use Nette\Database\Structure;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpNamespace;
+use Nette\Utils\FileSystem;
 use Nette\Utils\FileSystem as Files;
 
 class BuilderCompiler
@@ -53,11 +54,17 @@ class BuilderCompiler
         $this->factoryCompiler->setExtension($extension);
     }
 
+    public function clear(): void
+    {
+        FileSystem::delete(sprintf('%s/%s', $this->configuration->getTargetFolder(), BuilderCompiler::BUILDER_DIR));
+    }
+
     /**
      * @param BuilderToGenerateDto[] $tablesToGenerate
      */
     public function compile(array $tablesToGenerate): void
     {
+        $this->clear();
         $builderFactoryClass = $this->createBuilderFactory();
         $builderFactoryConstructor = $builderFactoryClass->addMethod('__construct');
         foreach ($tablesToGenerate as $data) {
