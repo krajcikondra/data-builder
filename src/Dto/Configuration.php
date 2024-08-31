@@ -14,6 +14,7 @@ final class Configuration
     private string $dbPassword;
 
     private string $namespace;
+    private ?string $customBuilderFolder;
 
     public function __construct(
         string $targetFolder,
@@ -22,6 +23,7 @@ final class Configuration
         string $dbUser,
         string $dbPassword,
         string $namespace = 'Tests\Builder\Generated',
+        ?string $customBuilderFolder = null,
     )
     {
         $this->targetFolder = $targetFolder;
@@ -30,6 +32,7 @@ final class Configuration
         $this->dbUser = $dbUser;
         $this->dbPassword = $dbPassword;
         $this->namespace = $namespace;
+        $this->customBuilderFolder = $customBuilderFolder;
     }
 
     public function getTargetFolder(): string
@@ -60,5 +63,10 @@ final class Configuration
     public function getNamespace(): string
     {
         return $this->namespace;
+    }
+
+    public function getCustomBuilderFolder(): ?string
+    {
+        return $this->customBuilderFolder;
     }
 }

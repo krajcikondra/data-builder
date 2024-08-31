@@ -11,6 +11,7 @@ use Krajcik\DataBuilder\CodeCompiler\FactoryCodeCompiler;
 use Krajcik\DataBuilder\CodeCompiler\ParametersCodeCompiler;
 use Krajcik\DataBuilder\Dto\Configuration;
 use Krajcik\DataBuilder\Dto\BuilderToGenerateDto;
+use Krajcik\DataBuilder\Loader\CustomDataBuilderLoader;
 use Krajcik\DataBuilder\Utils\GeneratorHelper;
 use Krajcik\DataBuilder\Utils\Strings;
 use Nette\Caching\Storages\MemoryStorage;
@@ -88,6 +89,7 @@ class BuilderCompiler
             $this->generateCreateBuilderMethod($builderFactoryClass, $entityClass);
         }
 
+        $this->generateCreateCustomBuilderMethods($builderFactoryClass);
         $this->generateBuilderFactoryConstructor($builderFactoryConstructor, $builderFactoryClass);
 
 
@@ -108,6 +110,49 @@ class BuilderCompiler
     }
 
     protected function generateCreateBuilderMethod(ClassType $builderFactoryClass, string $entityClass): Method
+    {
+        $method = $builderFactoryClass->addMethod(sprintf('create%sBuilder', $entityClass));
+        $method->setReturnType($this->pathResolver->getBuilderNamespace($entityClass));
+        $method
+            ->addParameter('parameters')
+            ->setNullable()
+            ->setDefaultValue(null)
+            ->setType($this->pathResolver->getParameterClassName($entityClass));
+
+        $method->addBody('if ($parameters === null) {');
+        $method->addBody(sprintf(
+            '    $parameters = (new %s($this->getFaker()))->createDefaultParameters();',
+            $this->pathResolver->getFactoryNamespace($entityClass),
+        ));
+        $method->addBody('}');
+        $method->addBody(sprintf(
+            'return new %s($parameters, $this->db);',
+            $this->pathResolver->getBuilderNamespace($entityClass),
+        ));
+        return $method;
+    }
+
+    protected function generateCreateCustomBuilderMethods(ClassType $builderFactoryClass): void
+    {
+        if ($this->configuration->getCustomBuilderFolder() === null) {
+            return;
+        }
+
+        $loader = new CustomDataBuilderLoader();
+        $customBuilders = $loader->load($this->configuration->getCustomBuilderFolder());
+        foreach ($customBuilders as $customBuilder) {
+            $reflectionClass = new \ReflectionClass($customBuilder);
+            $method = $builderFactoryClass->addMethod(sprintf('create%s', $reflectionClass->getShortName()));
+            $method->setReturnType($reflectionClass->getName());
+
+            $method->addBody(sprintf(
+                'return new %s($this);',
+                $reflectionClass->getName(),
+            ));
+        }
+    }
+
+    protected function generateCreateCustomBuilderMethod(ClassType $builderFactoryClass, string $entityClass): Method
     {
         $method = $builderFactoryClass->addMethod(sprintf('create%sBuilder', $entityClass));
         $method->setReturnType($this->pathResolver->getBuilderNamespace($entityClass));
