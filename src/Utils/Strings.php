@@ -11,7 +11,6 @@ use function strpos;
 
 final class Strings extends Nette\Utils\Strings
 {
-
     public static function snakeCaseToCamelCase(
         string $snakeCase,
     ): string {

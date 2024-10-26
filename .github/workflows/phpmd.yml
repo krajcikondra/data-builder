@@ -1,4 +1,4 @@
-name: PHPStan
+name: PHP mess detection
 
 on:
   push:
@@ -17,9 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
-
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
@@ -32,5 +29,5 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    - name: PHPstan
-      run: composer run phpstan
+    - name: PHP MD
+      run: composer run phpmd

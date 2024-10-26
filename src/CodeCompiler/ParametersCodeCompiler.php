@@ -20,7 +20,7 @@ final class ParametersCodeCompiler
     private PropertyNameResolver $propertyNameResolver;
 
     public function __construct(
-        private ?Context $db,
+        private ?Context $dbContext,
         private PathResolver $pathResolver,
     ) {
         $this->propertyNameResolver = new PropertyNameResolver();
@@ -50,10 +50,10 @@ final class ParametersCodeCompiler
     }
 
     private function generateProperties(
-        ClassType            $class,
+        ClassType $class,
         BuilderToGenerateDto $data,
     ): void {
-        $columns = $this->db->getStructure()->getColumns($data->getTableName());
+        $columns = $this->dbContext->getStructure()->getColumns($data->getTableName());
 
         foreach (DbHelper::sortTableColumns($columns) as $col) {
             $col = new EntityColumn($col, $data->getTableName());
@@ -65,13 +65,13 @@ final class ParametersCodeCompiler
     }
 
     private function generateConstructor(
-        ClassType            $class,
+        ClassType $class,
         BuilderToGenerateDto $data,
     ): void {
         $method = $class->addMethod('__construct')
             ->setPublic();
 
-        $columns = $this->db->getStructure()->getColumns($data->getTableName());
+        $columns = $this->dbContext->getStructure()->getColumns($data->getTableName());
 
         foreach (DbHelper::sortTableColumns($columns) as $col) {
             $col = new EntityColumn($col, $data->getTableName());
@@ -85,10 +85,10 @@ final class ParametersCodeCompiler
     }
 
     private function generateGetters(
-        ClassType            $class,
+        ClassType $class,
         BuilderToGenerateDto $data,
     ): void {
-        $columns = $this->db->getStructure()->getColumns($data->getTableName());
+        $columns = $this->dbContext->getStructure()->getColumns($data->getTableName());
 
         foreach (DbHelper::sortTableColumns($columns) as $col) {
             $col = new EntityColumn($col, $data->getTableName());

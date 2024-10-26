@@ -6,7 +6,6 @@ namespace Krajcik\DataBuilder\Dto;
 
 final class Configuration
 {
-
     private string $targetFolder;
     private string $dbHost;
     private string $dbName;
@@ -24,8 +23,7 @@ final class Configuration
         string $dbPassword,
         string $namespace = 'Tests\Builder\Generated',
         ?string $customBuilderFolder = null,
-    )
-    {
+    ) {
         $this->targetFolder = $targetFolder;
         $this->dbHost = $dbHost;
         $this->dbName = $dbName;

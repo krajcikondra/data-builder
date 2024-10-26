@@ -11,11 +11,11 @@ use ReflectionClass;
 
 final class CustomDataBuilderLoader
 {
-
     /**
      * @return string[]
      */
-    public function load(string $directory): array {
+    public function load(string $directory): array
+    {
         $classes = [];
 
         if (!is_dir($directory)) {
@@ -48,7 +48,7 @@ final class CustomDataBuilderLoader
      */
     private function unfilterAbstract(array $classes): array
     {
-        return array_filter($classes, function(string $class): bool {
+        return array_filter($classes, function (string $class): bool {
             $reflection = new ReflectionClass($class);
             return $reflection->isAbstract() === false;
         });

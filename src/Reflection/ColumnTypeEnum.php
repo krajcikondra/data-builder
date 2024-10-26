@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Krajcik\DataBuilder\Reflection;
+
 final class ColumnTypeEnum
 {
     public const CHAR = 'CHAR';

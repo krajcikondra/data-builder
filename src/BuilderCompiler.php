@@ -31,7 +31,7 @@ class BuilderCompiler
     protected BuilderCodeCompiler $builderCompiler;
     private FactoryCodeCompiler $factoryCompiler;
     private ParametersCodeCompiler $parametersCompiler;
-    protected Context $db;
+    protected Context $dbContext;
 
     protected PathResolver $pathResolver;
     private Configuration $configuration;
@@ -39,15 +39,15 @@ class BuilderCompiler
     public function __construct(
         Configuration $configuration,
     ) {
-        $this->db = $this->initDbContext($configuration);
+        $this->dbContext = $this->initDbContext($configuration);
         $this->pathResolver = new PathResolver($configuration);
         $this->configuration = $configuration;
 
         Files::createDir($configuration->getTargetFolder());
 
-        $this->builderCompiler = new BuilderCodeCompiler($this->db, $this->pathResolver, $this->configuration);
-        $this->parametersCompiler = new ParametersCodeCompiler($this->db, $this->pathResolver);
-        $this->factoryCompiler = new FactoryCodeCompiler($this->db, $this->pathResolver, $this->configuration);
+        $this->builderCompiler = new BuilderCodeCompiler($this->dbContext, $this->pathResolver, $this->configuration);
+        $this->parametersCompiler = new ParametersCodeCompiler($this->dbContext, $this->pathResolver);
+        $this->factoryCompiler = new FactoryCodeCompiler($this->dbContext, $this->pathResolver, $this->configuration);
     }
 
     public function setExtension(FactoryCodeExtension $extension): void
@@ -71,7 +71,7 @@ class BuilderCompiler
         foreach ($tablesToGenerate as $data) {
             $table = $data->getTableName();
             // Skip already precompiled models
-            if (!$this->db->query("SHOW TABLES LIKE ?", $table)->fetchAll()) {
+            if (!$this->dbContext->query("SHOW TABLES LIKE ?", $table)->fetchAll()) {
                 continue; // skip if table doe`s not exist
             }
 
@@ -97,8 +97,10 @@ class BuilderCompiler
         GeneratorHelper::writeClassFile($builderFactoryClass, $this->pathResolver->createBuilderFactoryClassPath());
     }
 
-    protected function generateBuilderFactoryConstructor(Method $builderFactoryConstructor, ClassType $builderFactoryClass): void
-    {
+    protected function generateBuilderFactoryConstructor(
+        Method $builderFactoryConstructor,
+        ClassType $builderFactoryClass,
+    ): void {
         $builderFactoryClass
             ->addProperty('db')
             ->setPrivate()
@@ -208,12 +210,12 @@ class BuilderCompiler
     private function initDbContext(Configuration $config): Context
     {
         $storage = new MemoryStorage();
-        $db = new Connection(
+        $dbConnection = new Connection(
             'mysql:host=' . $config->getDbHost() . ';dbname=' . $config->getDbName(),
             $config->getDbUser(),
             $config->getDbPassword(),
         );
 
-        return new Context($db, new Structure($db, $storage));
+        return new Context($dbConnection, new Structure($dbConnection, $storage));
     }
 }

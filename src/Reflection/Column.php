@@ -6,7 +6,6 @@ namespace Krajcik\DataBuilder\Reflection;
 
 use Nette\SmartObject;
 
-
 /**
  * General description of database column structure.
  */

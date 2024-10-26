@@ -9,24 +9,40 @@ use Krajcik\DataBuilder\Dto\Configuration;
 final class PathResolver
 {
     public function __construct(private Configuration $configuration)
-    {}
+    {
+    }
 
     public function createBuilderClassPath(
         string $entityClass,
     ): string {
-        return sprintf('%s/%s/%s.php', $this->configuration->getTargetFolder(), $entityClass, $this->createBuilderClassName($entityClass));
+        return sprintf(
+            '%s/%s/%s.php',
+            $this->configuration->getTargetFolder(),
+            $entityClass,
+            $this->createBuilderClassName($entityClass),
+        );
     }
 
     public function createFactoryClassPath(
         string $entityClass,
     ): string {
-        return sprintf('%s/%s/%s.php', $this->configuration->getTargetFolder(), $entityClass, $this->createFactoryClassName($entityClass));
+        return sprintf(
+            '%s/%s/%s.php',
+            $this->configuration->getTargetFolder(),
+            $entityClass,
+            $this->createFactoryClassName($entityClass),
+        );
     }
 
     public function createParametersClassPath(
         string $entityClass,
     ): string {
-        return sprintf('%s/%s/%s.php', $this->configuration->getTargetFolder(), $entityClass, $this->createParametersClassName($entityClass));
+        return sprintf(
+            '%s/%s/%s.php',
+            $this->configuration->getTargetFolder(),
+            $entityClass,
+            $this->createParametersClassName($entityClass),
+        );
     }
 
     public function createBuilderFactoryClassPath(): string
@@ -55,7 +71,12 @@ final class PathResolver
     public function getParameterClassName(
         string $className,
     ): string {
-        return sprintf('\\%s\\%s\\%s', $this->configuration->getNamespace(), $className, $this->createParametersClassName($className));
+        return sprintf(
+            '\\%s\\%s\\%s',
+            $this->configuration->getNamespace(),
+            $className,
+            $this->createParametersClassName($className),
+        );
     }
 
     public function getBuilderBaseNamespace(string $className): string
@@ -65,7 +86,12 @@ final class PathResolver
 
     public function getBuilderNamespace(string $className): string
     {
-        return sprintf('%s\%s\%s', $this->configuration->getNamespace(), $className, $this->createBuilderClassName($className));
+        return sprintf(
+            '%s\%s\%s',
+            $this->configuration->getNamespace(),
+            $className,
+            $this->createBuilderClassName($className),
+        );
     }
 
     public function getFactoryNamespace(

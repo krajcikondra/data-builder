@@ -25,7 +25,7 @@ final class FactoryCodeCompiler
     private ?FactoryCodeExtension $extension = null;
 
     public function __construct(
-        private ?Context $db,
+        private ?Context $dbContext,
         private PathResolver $pathResolver,
         private Configuration $configuration,
     ) {
@@ -85,8 +85,8 @@ final class FactoryCodeCompiler
             ->setPublic()
             ->setReturnType($this->pathResolver->getParameterClassName($data->getClassName()));
 
-        assert($this->db instanceof Context);
-        $columns = $this->db->getStructure()->getColumns($data->getTableName());
+        assert($this->dbContext instanceof Context);
+        $columns = $this->dbContext->getStructure()->getColumns($data->getTableName());
 
         $method->addBody(sprintf('        return new %sParameters(', $data->getClassName()));
         foreach (DbHelper::sortTableColumns($columns) as $col) {
@@ -103,6 +103,9 @@ final class FactoryCodeCompiler
         $method->addBody(');');
     }
 
+    /**
+     * @SuppressWarnings(PHPMD)
+     */
     private function getDefaultValue(
         EntityColumn $column,
     ): string {
@@ -191,5 +194,4 @@ final class FactoryCodeCompiler
             $default,
         );
     }
-
 }

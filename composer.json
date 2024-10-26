@@ -2,22 +2,33 @@
     "name": "krajcik/data-builder",
     "type": "library",
     "description": "Data generator based on database structure of your project.",
-    "license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
+    "license": ["BSD-3-Clause", "GPL-2.0-or-later", "GPL-3.0-or-later"],
     "autoload": {
         "psr-4": {
             "Krajcik\\DataBuilder\\": "src/"
         }
     },
     "require": {
-        "nette/database": ">=2.4",
-        "nette/php-generator": ">=3.6",
+        "php": ">=8.0",
+        "nette/database": "^2.4 || ^3.0",
+        "nette/php-generator": "^3.6 || ^4.0",
         "fakerphp/faker": "^1.23",
-        "nette/robot-loader": ">=2.4"
+        "nette/robot-loader": "^4.0"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.11"
+        "phpstan/phpstan": "^1.11",
+        "squizlabs/php_codesniffer": "^3.10",
+        "phpmd/phpmd": "^2.00"
     },
     "scripts": {
-        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon"
+        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon",
+        "phpcs": "vendor/bin/phpcs --standard=PSR12 src",
+        "phpcbf": "vendor/bin/phpcbf --standard=PSR12 src",
+        "phpmd": "vendor/bin/phpmd src/ text phpmd.xml"
+    },
+    "config": {
+        "platform": {
+            "php": "8.1"
+        }
     }
 }

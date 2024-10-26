@@ -13,7 +13,6 @@ use Nette\Database\Context;
  */
 class Table implements Iterator
 {
-
     protected string $tableName;
 
     /** @var array<string, mixed> Associative array of has-many references */
@@ -35,14 +34,14 @@ class Table implements Iterator
      */
     public function __construct(
         string $tableName,
-        Context $db,
+        Context $dbContext,
     ) {
         $this->tableName = $tableName;
-        $this->hasMany = $db->getStructure()->getHasManyReference($tableName);
-        $this->belongsTo = $db->getStructure()->getBelongsToReference($tableName);
+        $this->hasMany = $dbContext->getStructure()->getHasManyReference($tableName);
+        $this->belongsTo = $dbContext->getStructure()->getBelongsToReference($tableName);
         $this->addColumns(
             DbHelper::sortTableColumns(
-                $db->getStructure()->getColumns($tableName),
+                $dbContext->getStructure()->getColumns($tableName),
             ),
         );
     }
@@ -177,9 +176,9 @@ class Table implements Iterator
      */
     public function next(): void
     {
-        $i = (int) array_search($this->key, $this->keys, true) + 1;
-        if (isset($this->keys[$i])) {
-            $this->key = $this->keys[$i];
+        $index = (int) array_search($this->key, $this->keys, true) + 1;
+        if (isset($this->keys[$index])) {
+            $this->key = $this->keys[$index];
         } else {
             $this->key = false;
         }

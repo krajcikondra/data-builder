@@ -9,8 +9,12 @@ class BuilderToGenerateDto
     /**
      * @param array<string, string> $columnToPropertyNames
      */
-    protected function __construct(private string $tableName, private string $fullClassName, private ?array $columnToPropertyNames = null)
-    {}
+    protected function __construct(
+        private string $tableName,
+        private string $fullClassName,
+        private ?array $columnToPropertyNames = null
+    ) {
+    }
 
     public static function create(string $tableName, string $fullClassName): self
     {

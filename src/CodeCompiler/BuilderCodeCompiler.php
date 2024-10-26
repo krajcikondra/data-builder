@@ -23,7 +23,7 @@ class BuilderCodeCompiler
     private PropertyNameResolver $propertyNameResolver;
 
     public function __construct(
-        protected ?Context $db,
+        protected ?Context $dbContext,
         protected PathResolver $pathResolver,
         protected Configuration $config,
     ) {
@@ -71,7 +71,7 @@ class BuilderCodeCompiler
     }
 
     protected function createConstructMethod(
-        ClassType            $class,
+        ClassType $class,
         BuilderToGenerateDto $data,
     ): Method {
         $parameterType = $this->pathResolver->getParameterClassName($data->getClassName());
@@ -100,7 +100,7 @@ class BuilderCodeCompiler
             ->setReturnType('array')
             ->addComment('@return array<string, mixed>');
 
-        $columns = $this->db->getStructure()->getColumns($data->getTableName());
+        $columns = $this->dbContext->getStructure()->getColumns($data->getTableName());
 
         $method->addBody('        $data = [');
 
@@ -127,7 +127,7 @@ class BuilderCodeCompiler
     }
 
     protected function createBuildAndSaveMethod(
-        ClassType            $class,
+        ClassType $class,
         BuilderToGenerateDto $data,
     ): Method {
         $method = $class->addMethod('buildAndSave')
@@ -139,10 +139,10 @@ class BuilderCodeCompiler
 
 
     private function createWithMethods(
-        ClassType            $class,
+        ClassType $class,
         BuilderToGenerateDto $data,
     ): void {
-        $columns = $this->db->getStructure()->getColumns($data->getTableName());
+        $columns = $this->dbContext->getStructure()->getColumns($data->getTableName());
 
         // add referenced columns
         foreach (DbHelper::sortTableColumns($columns) as $col) {
