@@ -177,7 +177,7 @@ class Table implements Iterator
      */
     public function next(): void
     {
-        $i = array_search($this->key, $this->keys, true) + 1;
+        $i = (int) array_search($this->key, $this->keys, true) + 1;
         if (isset($this->keys[$i])) {
             $this->key = $this->keys[$i];
         } else {

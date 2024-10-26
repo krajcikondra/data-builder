@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Krajcik\DataBuilder\Loader;
 
+use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
@@ -11,6 +12,9 @@ use ReflectionClass;
 final class CustomDataBuilderLoader
 {
 
+    /**
+     * @return string[]
+     */
     public function load(string $directory): array {
         $classes = [];
 
@@ -38,6 +42,10 @@ final class CustomDataBuilderLoader
         return $this->unfilterAbstract($classes);
     }
 
+    /**
+     * @param string[] $classes
+     * @return string[]
+     */
     private function unfilterAbstract(array $classes): array
     {
         return array_filter($classes, function(string $class): bool {

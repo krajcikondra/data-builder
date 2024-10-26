@@ -1,0 +1,56 @@
+name: PHPStan
+
+jobs:
+  phpstan:
+    name: "composer run phpstan"
+    runs-on: [self-hosted, d1855-103]
+    container:
+      image: ubuntu:22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1.25"
+          tools: phpstan, composer
+          extensions: gd,soap,pdo_mysql
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - name: Cache dependencies
+        id: composer-deps
+        uses: actions/cache@v4
+        env:
+          cache-name: composer-cache
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}"
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Cache vendor (has side effects, irrelevant for code checks)
+        id: composer-vendor
+        uses: actions/cache@v4
+        env:
+          cache-name: composer-vendor
+        with:
+          path: |
+            vendor
+          key: "${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}"
+      - if: ${{ steps.composer-vendor.outputs.cache-hit != 'true' }}
+        name: Install dependencies
+        continue-on-error: true
+        run: composer run phpstan:prepare
+      - name: Cache Phpstan result cache
+        uses: actions/cache@v4
+        env:
+          cache-name: phpstan-data
+        with:
+          path: |
+            temp/phpstan
+          key: "${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('phpstan-baseline.php') }}"
+      - name: "composer.lock check"
+        id: composer-lock-check
+        run: composer run composerjson:check
+      - name: "ANALYZE phpstan"
+        id: phpstan-analyze
+        run: phpstan analyze --configuration phpstan.neon.dist --no-progress -vvv --error-format=github

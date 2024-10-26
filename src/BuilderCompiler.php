@@ -71,7 +71,7 @@ class BuilderCompiler
         foreach ($tablesToGenerate as $data) {
             $table = $data->getTableName();
             // Skip already precompiled models
-            if (!$this->db->query("SHOW TABLES LIKE '$table'")->fetchAll()) {
+            if (!$this->db->query("SHOW TABLES LIKE ?", $table)->fetchAll()) {
                 continue; // skip if table doe`s not exist
             }
 
