@@ -27,4 +27,17 @@ final class DbHelper
 
         return $columns;
     }
+
+    /**
+     * @param array{name: string}[] $columns
+     */
+    public static function hasColumn(array $columns, string $columnName): bool
+    {
+        foreach ($columns as $column) {
+            if ($column['name'] === $columnName) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

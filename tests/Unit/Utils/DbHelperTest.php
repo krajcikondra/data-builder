@@ -29,4 +29,26 @@ final class DbHelperTest extends TestCase
             ['name' => 'updated_at'],
         ], $sortedColumns);
     }
+
+    public function testHasColumn(): void
+    {
+        $columns = [
+            ['name' => 'amount'],
+            ['name' => 'count'],
+            ['name' => 'id'],
+            ['name' => 'id_creator'],
+            ['name' => 'updated_at'],
+            ['name' => 'created_at'],
+        ];
+        $this->assertTrue(DbHelper::hasColumn($columns, 'id'));
+
+        $columns = [
+            ['name' => 'amount'],
+            ['name' => 'count'],
+            ['name' => 'id_creator'],
+            ['name' => 'updated_at'],
+            ['name' => 'created_at'],
+        ];
+        $this->assertFalse(DbHelper::hasColumn($columns, 'id'));
+    }
 }

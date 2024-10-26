@@ -119,9 +119,13 @@ class BuilderCodeCompiler
         }
         $method->addBody('];');
         $method->addBody('');
-        $method->addBody('if ($this->parameters->getId() !== null) {');
-        $method->addBody('    $data[\'id\'] = $this->parameters->getId();');
-        $method->addBody('}');
+
+        if (DbHelper::hasColumn($columns, 'id') === true) {
+            $method->addBody('if ($this->parameters->getId() !== null) {');
+            $method->addBody('    $data[\'id\'] = $this->parameters->getId();');
+            $method->addBody('}');
+        }
+
         $method->addBody('');
         $method->addBody('return $data;');
     }
