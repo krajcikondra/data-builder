@@ -1,6 +1,8 @@
 {
     "name": "krajcik/data-builder",
     "type": "library",
+    "description": "Data generator based on database structure of your project.",
+    "license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
     "autoload": {
         "psr-4": {
             "Krajcik\\DataBuilder\\": "src/"
