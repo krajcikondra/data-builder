@@ -144,16 +144,10 @@ final class FactoryCodeCompiler
             $column->isInteger() && $column->isRelation() === true => '1',
             $column->isInteger() === true => $this->createInteger($column),
             $column->isDate() === true || $column->isDateOrTime(
-            ) === true => sprintf('new \DateTime("%s")', $this->getDefaultDate()),
+            ) === true => $this->getDefaultDateValue($column),
             $column->isJson() === true => "'{}'",
             default => $column->getNativeType() ?? throw new Exception('Native type is null'),
         };
-    }
-
-    private function getDefaultDate(): string
-    {
-        $now = new \DateTime();
-        return $now->format('Y-m-d H:i:s');
     }
 
     private function createString(
@@ -193,6 +187,10 @@ final class FactoryCodeCompiler
         $default = $column->getDefault();
         if ($default === 'current_timestamp()') {
             return 'new \\DateTime()';
+        }
+
+        if ($default === null) {
+            return 'new \\DateTime(\'now\')';
         }
 
         return sprintf(
