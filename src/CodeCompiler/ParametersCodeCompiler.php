@@ -59,7 +59,7 @@ final class ParametersCodeCompiler
             $col = new EntityColumn($col, $data->getTableName());
             $class->addProperty($this->propertyNameResolver->getPropertyName($col, $data))
                 ->setPrivate()
-                ->setNullable($col->isNullable() || $col->getName() === 'id')
+                ->setNullable($col->isNullable() || $col->isAutoincrement())
                 ->setType(Utils::getType($col, false));
         }
     }
@@ -78,7 +78,7 @@ final class ParametersCodeCompiler
             $parameterName = $this->propertyNameResolver->getPropertyName($col, $data);
             $method
                 ->addParameter($parameterName)
-                ->setNullable($col->isNullable() || $col->getName() === 'id')
+                ->setNullable($col->isNullable() || $col->isAutoincrement())
                 ->setType(Utils::getType($col, false));
             $method->addBody(sprintf('$this->%s = $%s;', $parameterName, $parameterName));
         }
@@ -96,7 +96,7 @@ final class ParametersCodeCompiler
             $method = $class->addMethod(sprintf('get%s', Strings::firstUpper($parameterName)))
                 ->setPublic()
                 ->setReturnType(Utils::getType($col, false))
-                ->setReturnNullable($col->isNullable() || $col->getName() === 'id');
+                ->setReturnNullable($col->isNullable() || $col->isAutoincrement());
 
             $method->addBody(sprintf('return $this->%s;', $parameterName));
         }

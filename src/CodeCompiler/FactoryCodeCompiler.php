@@ -138,6 +138,7 @@ final class FactoryCodeCompiler
             $column->isString() === true && Strings::contains($column->getName(), 'name') === true
                 => $this->createName($column),
             $column->isNullable() === true => 'null',
+            $column->isAutoincrement() === true => 'null',
             $column->isString() === true => $this->createString($column),
             $column->isBool() === true => 'true',
             $column->isFloat() === true => '0.0',

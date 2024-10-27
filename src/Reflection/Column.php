@@ -113,6 +113,15 @@ class Column
         return $this->column['vendor']['key'] === 'PRI';
     }
 
+    public function isAutoincrement(): bool
+    {
+        if (isset($this->column['vendor']['extra']) === false) {
+            return false;
+        }
+
+        return $this->column['vendor']['extra'] === 'auto_increment';
+    }
+
     /**
      * Check if column has unique key.
      */
