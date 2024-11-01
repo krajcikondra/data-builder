@@ -117,9 +117,7 @@ final class FactoryCodeCompiler
         }
 
         return match (true) {
-            $column->getName() === 'id' => 'null',
-            $column->getName() === 'date_add' => 'new \DateTime()',
-            $column->getName() === 'id_creator' => '1',
+            $column->isAutoincrement() => 'null',
             $column->isEnum() === true && $column->getDefault() => sprintf('\'%s\'', $column->getDefault()),
             $column->isEnum() === true => sprintf('\'%s\'', $column->getEnumList()[0]),
             $column->hasDefault() === true && $column->isDateOrTime() === true => $this->getDefaultDateValue($column),
@@ -136,9 +134,8 @@ final class FactoryCodeCompiler
                 'lastname',
             ) === true => '$this->generator->lastName()',
             $column->isString() === true && Strings::contains($column->getName(), 'name') === true
-                => $this->createName($column),
+            => $this->createName($column),
             $column->isNullable() === true => 'null',
-            $column->isAutoincrement() === true => 'null',
             $column->isString() === true => $this->createString($column),
             $column->isBool() === true => 'true',
             $column->isFloat() === true => '0.0',
