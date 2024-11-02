@@ -11,8 +11,12 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
+    env:
+      DB_DATABASE: test_db
+      DB_USER: root
+      DB_PASSWORD: root
 
     steps:
     - uses: actions/checkout@v4
@@ -31,6 +35,13 @@ jobs:
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
+
+    - name: Start MySQL
+      run: |
+        sudo /etc/init.d/mysql start
+        mysql -e "CREATE DATABASE IF NOT EXISTS $DB_DATABASE;" -u$DB_USER -p$DB_PASSWORD
+        mysql -u ${{ env.DB_USER }} --password=${{ env.DB_PASSWORD }} ${{ env.DB_DATABASE }} < .github/db/structure.sql
+
 
     - name: PHPUnit
       run: composer run phpunit
