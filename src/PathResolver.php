@@ -6,7 +6,7 @@ namespace Krajcik\DataBuilder;
 
 use Krajcik\DataBuilder\Dto\Configuration;
 
-final class PathResolver
+class PathResolver
 {
     public function __construct(private Configuration $configuration)
     {

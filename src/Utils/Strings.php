@@ -17,6 +17,11 @@ final class Strings extends Nette\Utils\Strings
         return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $snakeCase))));
     }
 
+    public static function tableNameToEntityName(string $tableName): string
+    {
+        return ucfirst(self::snakeCaseToCamelCase($tableName));
+    }
+
     public static function withRootNamespace(
         ?string $entity,
     ): ?string {

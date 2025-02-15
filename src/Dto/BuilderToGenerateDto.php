@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Krajcik\DataBuilder\Dto;
 
+use Krajcik\DataBuilder\Utils\Strings;
+
 class BuilderToGenerateDto
 {
     /**
@@ -11,14 +13,17 @@ class BuilderToGenerateDto
      */
     protected function __construct(
         private string $tableName,
-        private string $fullClassName,
+        private ?string $fullClassName,
         private ?array $columnToPropertyNames = null
     ) {
     }
 
-    public static function create(string $tableName, string $fullClassName): self
+    public static function create(string $tableName, ?string $fullClassName = null): self
     {
-        return new self($tableName, $fullClassName);
+        return new self(
+            tableName: $tableName,
+            fullClassName: $fullClassName ?? Strings::tableNameToEntityName($tableName),
+        );
     }
 
     public function getTableName(): string
@@ -39,7 +44,7 @@ class BuilderToGenerateDto
         return implode('\\', $parts);
     }
 
-    public function getFullClassName(): string
+    public function getFullClassName(): ?string
     {
         return $this->fullClassName;
     }

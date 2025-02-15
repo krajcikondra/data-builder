@@ -142,6 +142,14 @@ class BuilderCodeCompiler
     }
 
 
+    protected function appendDbParameterToMethods(Method $method): void
+    {
+        $method->addBody('    ),');
+        $method->addBody('    $this->db,');
+        $method->addBody(');');
+    }
+
+
     private function createWithMethods(
         ClassType $class,
         BuilderToGenerateDto $data,
@@ -180,9 +188,7 @@ class BuilderCodeCompiler
                     ));
                 }
             }
-            $method->addBody('    ),');
-            $method->addBody('    $this->em,');
-            $method->addBody(');');
+            $this->appendDbParameterToMethods($method);
         }
     }
 }

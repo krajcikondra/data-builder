@@ -14,4 +14,11 @@ final class StringsTest extends TestCase
         $camelCaseString = Strings::snakeCaseToCamelCase('id_creator');
         $this->assertSame('idCreator', $camelCaseString);
     }
+
+    public function testTableNameToEntityName(): void
+    {
+        $camelCaseString = Strings::tableNameToEntityName('user_person');
+        $this->assertSame('UserPerson', $camelCaseString);
+    }
+
 }

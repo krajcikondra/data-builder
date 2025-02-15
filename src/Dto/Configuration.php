@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Krajcik\DataBuilder\Dto;
 
-final class Configuration
+class Configuration
 {
     private string $targetFolder;
     private string $dbHost;
