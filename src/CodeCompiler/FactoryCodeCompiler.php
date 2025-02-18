@@ -173,11 +173,12 @@ final class FactoryCodeCompiler
     private function createInteger(
         EntityColumn $column,
     ): string {
+        $size = min($column->getSize() ?? 5, 9);
         if ($column->isUnique() === true) {
-            return sprintf('$this->generator->unique()->randomNumber(%d)', $column->getSize() ?? 5);
+            return sprintf('$this->generator->unique()->randomNumber(%d)', $size);
         }
 
-        return sprintf('$this->generator->randomNumber(%d)', $column->getSize() ?? 5);
+        return sprintf('$this->generator->randomNumber(%d)', $size);
     }
 
     private function getDefaultDateValue(EntityColumn $column): string
